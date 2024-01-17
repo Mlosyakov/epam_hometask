@@ -1,2 +1,4 @@
-# Basics MLE Module
+# Basics MLE Module Homework
+
+## Project Structure
 
