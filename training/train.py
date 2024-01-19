@@ -130,7 +130,7 @@ class IrisNN(pl.LightningModule):
       optimizer = optim.SGD(self.parameters(), lr = 0.01)
       return optimizer
 
-def train_iris_model(train_loader, val_loader, input_size, hidden_size, max_epochs = 25, batch_size = 8, model_path = model_path):
+def train_iris_model(train_loader, val_loader, input_size, hidden_size, max_epochs, batch_size, model_path):
   model = IrisNN(input_size = input_size, hidden_size = hidden_size)
 
   early_stop_callback = EarlyStopping(
@@ -172,6 +172,6 @@ def get_preds_for_eval(model, dataloader):
   return np.array(prediction_list), np.array(target_list)
 
 tr = TrainProcessor()
-train_loader, val_loader, input_size = tr.prepare_data(train_path = train_path)
+train_loader, val_loader, input_size = tr.prepare_data(train_path = TRAIN_PATH)
 
-train_iris_model(train_loader = train_loader, val_loader = val_loader, input_size = input_size, hidden_size = hidden_size, max_epochs = max_epochs, batch_size = batch_size)
+train_iris_model(train_loader = train_loader, val_loader = val_loader, input_size = input_size, hidden_size = HIDDEN_SIZE, max_epochs = MAX_EPOCHS, batch_size = BATCH_SIZE, model_path = MODEL_PATH)
