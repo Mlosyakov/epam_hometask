@@ -29,10 +29,13 @@ with open(CONF_FILE, "r") as file:
 logger.info("Defining paths...")
 DATA_DIR = get_project_dir(configur["general"]["data_dir"])
 MODEL_PATH = os.path.join(DATA_DIR, configur["general"]["models_dir"])
-
-def preprocess_inf(url : str, target_col = 'Species'):
+INFERENCE_PATH = os.path.join(DATA_DIR, configur["inference"]["inf_table_name"])
+TARGET_COL = configur["general"]["target_col"]
+DICT_NAME = configur["train"]["dict_name"]
+DICT_LOC = os.path.join(MODEL_PATH, DICT_NAME)
+def preprocess_inf(path):
   df = pd.read_csv(url)
-  X = df.drop(columns = target_col).values
+  X = df.drop(columns = TARGET_COL).values
   X = torch.tensor(X, dtype = torch.float32)
   X = DataLoader(dataset = X, batch_size = len(X), num_workers=1)
   return X
@@ -68,12 +71,12 @@ def get_preds(model, dataloader):
     outputs = model(inputs)
     _, predictions = torch.max(F.softmax(outputs, dim = 1), 1)
     prediction_list.extend(predictions.detach().numpy())
-    label_unencode = np.load('/content/Value dictionary.npy',allow_pickle='TRUE').item()
-  return np.vectorize(label_unencode.get)(prediction_list)
+    label_decode = np.load(DICT_LOC,allow_pickle='TRUE').item()
+  return np.vectorize(label_decode.get)(prediction_list)
 
 
-model = load_model(model_dir)
+model = load_model(MODEL_PATH)
 
-data = preprocess_inf('/content/inference/inference.csv')
+data = preprocess_inf(INFERENCE_PATH)
 
 preds = get_preds(model, data)
