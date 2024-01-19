@@ -1,5 +1,5 @@
 # Basics MLE Module Homework
-
+This is a project for Basics MLE module of a course. All scripts were tested on MacOS, if there are any performance issues on different OS please let me know.
 ## Project Structure
 
 <code>epam_hometask
