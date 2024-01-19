@@ -1,13 +1,34 @@
+import json
+import logging
+import io
+import os
+import sys
 import torch
 import torch.nn as nn
 import torch.optim as optim
 import numpy as np
 from datetime import datetime
 from pathlib import Path
-import io
-import os
 
-model_dir = '/content/model'
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+
+ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.dirname(ROOT_DIR))
+from utils import get_project_dir, configure_logging
+
+DATA_DIR = os.path.abspath(os.path.join(ROOT_DIR, '../data'))
+if not os.path.exists(DATA_DIR):
+  os.makedirs(DATA_DIR)
+
+CONF_FILE = ".vscode/settings.json"
+logger.info("Getting few important dependencies...")
+with open(CONF_FILE, "r") as file:
+  configur = json.load(file)
+
+logger.info("Defining paths...")
+DATA_DIR = get_project_dir(configur["general"]["data_dir"])
+MODEL_PATH = os.path.join(DATA_DIR, configur["general"]["models_dir"])
 
 def preprocess_inf(url : str, target_col = 'Species'):
   df = pd.read_csv(url)
