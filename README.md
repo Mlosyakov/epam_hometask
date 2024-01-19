@@ -19,7 +19,7 @@ This is a project for Basics MLE module of a course. All scripts were tested on 
 
 ~~~
 epam_hometask
-├── data                      # Data files used for training and inference (can be generated with data_generation.py script) and file containing complete dataset
+├── data                      # Data files used for training and inference, file containing complete dataset
 │   ├── raw_data.csv
 │   ├── inference_iris.csv
 │   └── train_iris.csv
@@ -44,7 +44,13 @@ epam_hometask
 ## How to run
 These scripts should be run in order, demonstrated below to successfully build the model and not return any errors:
 
+1. Run data_prep
+2. Run training.py
+3. Run inference.py
 
+Succsessful run of data_prep is indicated by creating <code>data</code> directory and 3 files inside of it;  
+Succsessful run of data_prep is indicated by creating <code>models</code> directory, model file, checkpoint file and decoder file inside of it  
+Succsessful run of inference is indicated by creating <code>results</code> directory, outputs file inside of it  
 ## Data prep
 Running <code>data_prep.py</code> script performs the following:  
 1. Downloads data from the webpage;
