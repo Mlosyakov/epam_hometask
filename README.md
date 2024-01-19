@@ -2,7 +2,8 @@
 This is a project for Basics MLE module of a course. All scripts were tested on MacOS, if there are any performance issues on different OS please let me know.
 ## Project Structure
 
-<code>epam_hometask
+~~~
+epam_hometask
 ├── data                      # Data files used for training and inference (can be generated with data_generation.py script) and file containing complete dataset
 │   ├── raw_data.csv
 │   ├── inference_iris.csv
@@ -24,7 +25,7 @@ This is a project for Basics MLE module of a course. All scripts were tested on 
 ├── requirements.txt          # All requirements for the project
 ├── settings.json             # All configurable parameters and settings
 └── README.md
-</code>
+~~~
 
 ## Data prep
 Running <code>data_prep.py</code> script performs the following:  
