@@ -51,14 +51,17 @@ These scripts should be run in order, demonstrated below to successfully build t
 Succsessful run of data_prep is indicated by creating <code>data</code> directory and 3 files inside of it;  
 Succsessful run of data_prep is indicated by creating <code>models</code> directory, model file, checkpoint file and decoder file inside of it  
 Succsessful run of inference is indicated by creating <code>results</code> directory, outputs file inside of it  
-## Data prep
+
+## Information about each script
+
+### Data prep
 Running <code>data_prep.py</code> script performs the following:  
 1. Downloads data from the webpage;
 2. Saves full dataset into <code>data</code> directory as a .csv file. If <code>data</code> directory does not exist, directory is created;
 3. Splits dataset into training and inference parts according to <code>test_size</code> parameter in settings.json;
 4. Saves training and inference dataset into <code>data</code> directory as a .csv files with names specified in settings.json;
 
-## Training
+### Training
 Running <code>train.py</code> script performs the following:  
 1. Training file from <code>data</code> is preprocessed for modelling:
     <ul>
@@ -71,7 +74,7 @@ Running <code>train.py</code> script performs the following:
 4. Model checkpoint with best model performance is saved into <code>models</code> directories;
 5. F1 score of best performing checkpoint is printed out;
 
-## Inference
+### Inference
 Running <code>inference.py</code> script performs the following:  
 1. Inference file from <code>data</code> directory is preprocessed for predictions;
 2. Model and checkpoint with best performance are loaded from <code>model</code> directory;
