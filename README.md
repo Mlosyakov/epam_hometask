@@ -3,11 +3,11 @@ This is a project for Basics MLE module of a course. All scripts were tested on 
 ## Current state of project
 
 - [ ] Requirements file contains all neccessary information
-- [ ] Settings file contains all changable variables
+- [] Settings file contains all changable variables
 - [x] data_prep.py is ready
 - [x] data_prep.py works
 - [x] train.py is ready
-- [ ] train.py works
+- [x] train.py works
 - [ ] docker image for train is built
 - [ ] exeptions and test for train.py are ready and working (tests for batch size, directories, files)
 - [x] inference.py is ready
