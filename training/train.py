@@ -142,7 +142,7 @@ def train_iris_model(train_loader, val_loader, input_size, hidden_size, max_epoc
 
   checkpoint_callback = ModelCheckpoint(
       monitor = 'val_loss',
-      dirpath = '/content/model',
+      dirpath = MODEL_PATH,
       filename = 'best_model',
       save_top_k = 1,
       mode = 'min'
@@ -155,9 +155,17 @@ def train_iris_model(train_loader, val_loader, input_size, hidden_size, max_epoc
 
   trainer.fit(model, train_dataloaders = train_loader, val_dataloaders = val_loader)
 
-  model_path = os.path.join(model_path, 'IrisNN.pth')
-  torch.save(model, model_path)
-  return model
+  logging.info("Saving the model...")
+  if not os.path.exists(MODEL_DIR):
+      os.makedirs(MODEL_DIR)
+  
+  if not path:
+      path = os.path.join(MODEL_DIR, datetime.now().strftime(conf['general']['datetime_format']) + '.pickle')
+  else:
+      path = os.path.join(MODEL_DIR, path)
+  
+  with open(path, 'wb') as f:
+      pickle.dump(self.model, f)
 
 def get_preds_for_eval(model, dataloader):
   model.eval()
