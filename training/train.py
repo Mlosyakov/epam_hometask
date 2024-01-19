@@ -30,7 +30,7 @@ from utils import get_project_dir, configure_logging
 
 DATA_DIR = os.path.abspath(os.path.join(ROOT_DIR, '../data'))
 if not os.path.exists(DATA_DIR):
-    os.makedirs(DATA_DIR)
+    raise RuntimeError("No data found. Please run data_prep.py first")
 
 CONF_FILE = ".vscode/settings.json"
 logger.info("Getting few important dependencies...")
@@ -169,7 +169,7 @@ def train_iris_model(train_loader, val_loader, input_size, hidden_size, max_epoc
   
     trainer.fit(model, train_dataloaders = train_loader, val_dataloaders = val_loader)
     end_time = time.time()
-    logging.info(f"Training finished in{end_time - start_time} seconds")
+    logging.info(f"Training finished in {end_time - start_time} seconds")
     
     logging.info("Saving the model...")
     if not os.path.exists(MODEL_PATH):
@@ -184,6 +184,8 @@ def train_iris_model(train_loader, val_loader, input_size, hidden_size, max_epoc
         pickle.dump(model, f)
         logging.info("Model saved successfully.")
 
+    return model
+
 def get_preds_for_eval(model, dataloader):
     logging.info("Evaluating results...")
     model.eval()
@@ -195,21 +197,20 @@ def get_preds_for_eval(model, dataloader):
       _, predictions = torch.max(F.softmax(outputs, dim = 1), 1)
       prediction_list.extend(predictions.detach().numpy())
       target_list.extend(targets.detach().numpy())
-      res = f1_score(np.array(target_list) ,np.array(prediction_list))
-      logging.info("Model achieved f1_score of {res:.2f}")
+    res = f1_score(np.array(target_list) ,np.array(prediction_list), average = 'micro')
+    logging.info(f"Model achieved f1_score of {res:.2f}")
     return np.array(prediction_list), np.array(target_list)
 
 def main():
     tr = TrainProcessor()
     train_loader, val_loader, input_size = tr.prepare_data(train_path = TRAIN_PATH)
-
-    train_iris_model(
+    model = train_iris_model(
         train_loader = train_loader, 
         val_loader = val_loader, 
         input_size = input_size, 
         hidden_size = HIDDEN_SIZE,
         max_epochs = MAX_EPOCHS, 
                     )
-
+    get_preds_for_eval(model, val_loader)
 if __name__ == '__main__':
     main()

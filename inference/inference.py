@@ -2,13 +2,16 @@ import json
 import logging
 import io
 import os
+import pandas as pd
 import sys
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 import torch.optim as optim
 import numpy as np
 from datetime import datetime
 from pathlib import Path
+from torch.utils.data import DataLoader, TensorDataset
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -19,7 +22,7 @@ from utils import get_project_dir, configure_logging
 
 DATA_DIR = os.path.abspath(os.path.join(ROOT_DIR, '../data'))
 if not os.path.exists(DATA_DIR):
-    os.makedirs(DATA_DIR)
+    raise RuntimeError("No data found. Please run data_prep.py first")
 
 CONF_FILE = ".vscode/settings.json"
 logger.info("Getting few important dependencies...")
@@ -27,14 +30,19 @@ with open(CONF_FILE, "r") as file:
     configur = json.load(file)
 
 logger.info("Defining paths...")
-DATA_DIR = get_project_dir(configur["general"]["data_dir"])
+
 MODEL_PATH = os.path.join(DATA_DIR, configur["general"]["models_dir"])
+if not os.path.exists(MODEL_PATH):
+    raise RuntimeError("No models found. Please run train.py first")
+
+DATA_DIR = get_project_dir(configur["general"]["data_dir"])
 INFERENCE_PATH = os.path.join(DATA_DIR, configur["inference"]["inf_table_name"])
 TARGET_COL = configur["general"]["target_col"]
 DICT_NAME = configur["train"]["dict_name"]
 DICT_LOC = os.path.join(MODEL_PATH, DICT_NAME)
+
 def preprocess_inf(path):
-    df = pd.read_csv(url)
+    df = pd.read_csv(path)
     X = df.drop(columns = TARGET_COL).values
     X = torch.tensor(X, dtype = torch.float32)
     X = DataLoader(dataset = X, batch_size = len(X), num_workers=1)
@@ -71,12 +79,16 @@ def get_preds(model, dataloader):
       outputs = model(inputs)
       _, predictions = torch.max(F.softmax(outputs, dim = 1), 1)
       prediction_list.extend(predictions.detach().numpy())
-      label_decode = np.load(DICT_LOC,allow_pickle='TRUE').item()
-    return np.vectorize(label_decode.get)(prediction_list)
+    label_decode = np.load(DICT_LOC, allow_pickle='TRUE').item()
+    results = np.vectorize(label_decode.get)(prediction_list)
+    
 
+def main():
+    model = load_model(MODEL_PATH)
+    data = preprocess_inf(INFERENCE_PATH)
+    get_preds(model, data)
+    
 
-model = load_model(MODEL_PATH)
+if __name__ == '__main__':
+    main()
 
-data = preprocess_inf(INFERENCE_PATH)
-
-preds = get_preds(model, data)
