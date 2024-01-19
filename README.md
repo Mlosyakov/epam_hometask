@@ -1,5 +1,20 @@
 # Basics MLE Module Homework
 This is a project for Basics MLE module of a course. All scripts were tested on MacOS, if there are any performance issues on different OS please let me know.
+## Current state of project
+
+- [ ] Requirements file contains all neccessary information
+- [ ] Settings file contains all changable variables
+- [x] data_prep.py is ready
+- [x] data_prep.py works
+- [x] train.py is ready
+- [ ] train.py works
+- [ ] docker image for train is built
+- [ ] exeptions and test for train.py are ready and working (tests for batch size, directories, files)
+- [x] inference.py is ready
+- [ ] inference.py works
+- [ ] docker image for inference is built
+- [ ] exeptions and test for inference.py are ready and working (tests for batch size, directories, files)
+
 ## Project Structure
 
 ~~~
@@ -26,6 +41,9 @@ epam_hometask
 ├── settings.json             # All configurable parameters and settings
 └── README.md
 ~~~
+## How to run
+These scripts should be run in order, demonstrated below to successfully build the model and not return any errors:
+
 
 ## Data prep
 Running <code>data_prep.py</code> script performs the following:  
