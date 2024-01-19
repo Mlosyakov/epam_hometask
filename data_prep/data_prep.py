@@ -26,6 +26,7 @@ with open(CONF_FILE, "r") as file:
     configur = json.load(file)
 
 logger.info("Defining paths...")
+
 DATA_DIR = get_project_dir(configur["general"]["data_dir"])
 TRAIN_PATH = os.path.join(DATA_DIR, configur["train"]["table_name"])
 INFERENCE_PATH = os.path.join(DATA_DIR, configur["inference"]["inf_table_name"])
@@ -75,5 +76,5 @@ if __name__ == "__main__":
     data_getter = DataGetting()
     data_getter.get_iris()
     data_getter.split_and_save(TRAIN_PATH, INFERENCE_PATH)
-    logger.info("Data stolen and separated equally...")
+    logger.info("Great success! Script finished.")
     
