@@ -3,7 +3,7 @@ This is a project for Basics MLE module of a course. All scripts were tested on 
 ## Current state of project
 
 - [ ] Requirements file contains all neccessary information
-- [] Settings file contains all changable variables
+- [ ] Settings file contains all changable variables
 - [x] data_prep.py is ready
 - [x] data_prep.py works
 - [x] train.py is ready
