@@ -26,12 +26,12 @@ from utils import get_project_dir, configure_logging
 
 DATA_DIR = os.path.abspath(os.path.join(ROOT_DIR, '../data'))
 if not os.path.exists(DATA_DIR):
-  os.makedirs(DATA_DIR)
+    os.makedirs(DATA_DIR)
 
 CONF_FILE = ".vscode/settings.json"
 logger.info("Getting few important dependencies...")
 with open(CONF_FILE, "r") as file:
-  configur = json.load(file)
+    configur = json.load(file)
 
 logger.info("Defining paths...")
 DATA_DIR = get_project_dir(configur["general"]["data_dir"])
@@ -49,47 +49,47 @@ TEST_SIZE = configur["train"]["test_size"]
 
 class TrainProcessor():
     def __init__(self):
-      pass
+        pass
 
     def prepare_data(self):
-      df = pd.read_csv(TRAIN_PATH)
-      df = self.encode_target(df)
-      X_train, X_test, y_train, y_test, input_size = self.split_train(df)
-      X_train_tens, y_train_tens, X_val_tens, y_val_tens = self.convert_to_tensors(X_train, X_test, y_train, y_test)
-      train_loader, val_loader = self.prepare_dataloader(X_train_tens, y_train_tens, X_val_tens, y_val_tens, BATCH_SIZE)
+        df = pd.read_csv(TRAIN_PATH)
+        df = self.encode_target(df)
+        X_train, X_test, y_train, y_test, input_size = self.split_train(df)
+        X_train_tens, y_train_tens, X_val_tens, y_val_tens = self.convert_to_tensors(X_train, X_test, y_train, y_test)
+        train_loader, val_loader = self.prepare_dataloader(X_train_tens, y_train_tens, X_val_tens, y_val_tens, BATCH_SIZE)
       return train_loader, val_loader, input_size
 
     def encode_target(self, df):
-      labels = list(range(len(df[TARGET_COL].unique())))
-      #label encoding target column
-      mapping = dict(zip(df[TARGET_COL].unique(), labels))
-      inv_map = {v: k for k, v in mapping.items()}
-      dict_path = os.path.join(MODEL_PATH, DICT_NAME)
-      np.save(dict_path, inv_map)
-      df[TARGET_COL] = pd.Series(df[TARGET_COL]).map(mapping)
-      return df
+        labels = list(range(len(df[TARGET_COL].unique())))
+        #label encoding target column
+        mapping = dict(zip(df[TARGET_COL].unique(), labels))
+        inv_map = {v: k for k, v in mapping.items()}
+        dict_path = os.path.join(MODEL_PATH, DICT_NAME)
+        np.save(dict_path, inv_map)
+        df[TARGET_COL] = pd.Series(df[TARGET_COL]).map(mapping)
+        return df
 
     def split_train(self, data : pd.DataFrame, test_size: float = TEST_SIZE, target_col = 'Species'):
-      target_col = target_col
-      X = data.drop(columns = target_col).values
-      y = (data[target_col]).values
-      X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = test_size, stratify = y, random_state = RANDOM_STATE)
-      input_size = X_train.shape[1]
-      return X_train, X_test, y_train, y_test, input_size
+        target_col = target_col
+        X = data.drop(columns = target_col).values
+        y = (data[target_col]).values
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = test_size, stratify = y, random_state = RANDOM_STATE)
+        input_size = X_train.shape[1]
+        return X_train, X_test, y_train, y_test, input_size
 
     def convert_to_tensors(self, X_train, X_test, y_train, y_test):
-      train_tensors = (torch.tensor(X_train, dtype = torch.float32),
-                      torch.tensor(y_train, dtype = torch.long))
-      val_tensors = (torch.tensor(X_test, dtype = torch.float32),
-                      torch.tensor(y_test, dtype = torch.long))
-      return *train_tensors, *val_tensors
+        train_tensors = (torch.tensor(X_train, dtype = torch.float32),
+                        torch.tensor(y_train, dtype = torch.long))
+        val_tensors = (torch.tensor(X_test, dtype = torch.float32),
+                        torch.tensor(y_test, dtype = torch.long))
+        return *train_tensors, *val_tensors
 
     def prepare_dataloader(self, X_train_tens, y_train_tens, X_val_tens, y_val_tens, batch_size):
-      train_dataset = TensorDataset(X_train_tens, y_train_tens)
-      val_dataset = TensorDataset(X_val_tens, y_val_tens)
-      train_loader = DataLoader(dataset = train_dataset, batch_size = batch_size, shuffle=True, num_workers=1)
-      val_loader = DataLoader(dataset = val_dataset, batch_size = batch_size, num_workers=1)
-      return train_loader, val_loader
+        train_dataset = TensorDataset(X_train_tens, y_train_tens)
+        val_dataset = TensorDataset(X_val_tens, y_val_tens)
+        train_loader = DataLoader(dataset = train_dataset, batch_size = batch_size, shuffle=True, num_workers=1)
+        val_loader = DataLoader(dataset = val_dataset, batch_size = batch_size, num_workers=1)
+        return train_loader, val_loader
 
 
 class IrisNN(pl.LightningModule):
@@ -127,57 +127,57 @@ class IrisNN(pl.LightningModule):
         return loss
 
     def configure_optimizers(self):
-      optimizer = optim.SGD(self.parameters(), lr = 0.01)
-      return optimizer
+        optimizer = optim.SGD(self.parameters(), lr = 0.01)
+        return optimizer
 
 def train_iris_model(train_loader, val_loader, input_size, hidden_size, max_epochs, batch_size, model_path):
-  model = IrisNN(input_size = input_size, hidden_size = hidden_size)
+    model = IrisNN(input_size = input_size, hidden_size = hidden_size)
 
-  early_stop_callback = EarlyStopping(
-      monitor = 'val_loss',
-      patience = 3,
-      verbose = True,
-      mode = 'min'
-  )
-
-  checkpoint_callback = ModelCheckpoint(
-      monitor = 'val_loss',
-      dirpath = MODEL_PATH,
-      filename = 'best_model',
-      save_top_k = 1,
-      mode = 'min'
-  )
-
-  trainer = pl.Trainer(
-      max_epochs = max_epochs,
-      callbacks = [early_stop_callback, checkpoint_callback]
-  )
-
-  trainer.fit(model, train_dataloaders = train_loader, val_dataloaders = val_loader)
-
-  logging.info("Saving the model...")
-  if not os.path.exists(MODEL_DIR):
-      os.makedirs(MODEL_DIR)
+    early_stop_callback = EarlyStopping(
+        monitor = 'val_loss',
+        patience = 3,
+        verbose = True,
+        mode = 'min'
+    )
   
-  if not path:
-      path = os.path.join(MODEL_DIR, datetime.now().strftime(conf['general']['datetime_format']) + '.pickle')
-  else:
-      path = os.path.join(MODEL_DIR, path)
+    checkpoint_callback = ModelCheckpoint(
+        monitor = 'val_loss',
+        dirpath = MODEL_PATH,
+        filename = 'best_model',
+        save_top_k = 1,
+        mode = 'min'
+    )
   
-  with open(path, 'wb') as f:
-      pickle.dump(self.model, f)
+    trainer = pl.Trainer(
+        max_epochs = max_epochs,
+        callbacks = [early_stop_callback, checkpoint_callback]
+    )
+  
+    trainer.fit(model, train_dataloaders = train_loader, val_dataloaders = val_loader)
+  
+    logging.info("Saving the model...")
+    if not os.path.exists(MODEL_DIR):
+        os.makedirs(MODEL_DIR)
+    
+    if not path:
+        path = os.path.join(MODEL_DIR, datetime.now().strftime(conf['general']['datetime_format']) + '.pickle')
+    else:
+        path = os.path.join(MODEL_DIR, path)
+    
+    with open(path, 'wb') as f:
+        pickle.dump(self.model, f)
 
 def get_preds_for_eval(model, dataloader):
-  model.eval()
-  prediction_list = []
-  target_list = []
-  for batch in dataloader:
-    inputs, targets = batch
-    outputs = model(inputs)
-    _, predictions = torch.max(F.softmax(outputs, dim = 1), 1)
-    prediction_list.extend(predictions.detach().numpy())
-    target_list.extend(targets.detach().numpy())
-  return np.array(prediction_list), np.array(target_list)
+    model.eval()
+    prediction_list = []
+    target_list = []
+    for batch in dataloader:
+      inputs, targets = batch
+      outputs = model(inputs)
+      _, predictions = torch.max(F.softmax(outputs, dim = 1), 1)
+      prediction_list.extend(predictions.detach().numpy())
+      target_list.extend(targets.detach().numpy())
+    return np.array(prediction_list), np.array(target_list)
 
 tr = TrainProcessor()
 train_loader, val_loader, input_size = tr.prepare_data(train_path = TRAIN_PATH)
