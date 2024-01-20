@@ -43,7 +43,7 @@ INFERENCE_PATH = os.path.join(DATA_DIR, configur["inference"]["inf_table_name"])
 TARGET_COL = configur["general"]["target_col"]
 DICT_NAME = configur["train"]["dict_name"]
 DICT_LOC = os.path.join(MODEL_PATH, DICT_NAME)
-RESULTS_PATH = os.path.join(RESULTS_DIR, configur["inference"]["inf_table_name"])
+RESULTS_PATH = os.path.join(RESULTS_DIR, configur["inference"]["res_table_name"])
 INF_MODEL_PATH = os.path.join(RESULTS_DIR, configur["inference"]["IrisNN.pickle"])
 
 def preprocess_inf(path):
