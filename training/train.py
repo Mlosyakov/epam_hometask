@@ -79,6 +79,7 @@ class TrainProcessor():
         dict_path = os.path.join(MODEL_PATH, DICT_NAME)
         np.save(dict_path, inv_map)
         df[TARGET_COL] = pd.Series(df[TARGET_COL]).map(mapping)
+        logging.info(f"Data is prepared with {len(df)} samples. {len(X_train} of them used for training and rest for validation")
         return df
 
     def split_train(self, data : pd.DataFrame, test_size: float = TEST_SIZE, target_col = 'Species'):
