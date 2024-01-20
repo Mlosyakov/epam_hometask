@@ -156,7 +156,7 @@ def get_preds(model, dataloader):
     label_decode = np.load(DICT_PATH, allow_pickle='TRUE').item()
     results = np.vectorize(label_decode.get)(prediction_list)
     pd.Series(results).to_csv(RESULTS_PATH, index = False, encoding="utf-16")
-    logging.info(f"Model finished predicting in {end_time - start_time}. Output is stored in .csv file in results folder. Have a great day!")
+    logging.info(f"Model finished predicting in {end_time - start_time} seconds. Output is stored in .csv file in results folder. Have a great day!")
 
 def main():
     model = load_model(MODEL_DIR)
