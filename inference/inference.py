@@ -44,6 +44,7 @@ TARGET_COL = configur["general"]["target_col"]
 DICT_NAME = configur["train"]["dict_name"]
 DICT_LOC = os.path.join(MODEL_PATH, DICT_NAME)
 RESULTS_PATH = os.path.join(RESULTS_DIR, configur["inference"]["inf_table_name"])
+INF_MODEL_PATH = os.path.join(RESULTS_DIR, configur["inference"]["IrisNN.pickle"])
 
 def preprocess_inf(path):
     logging.info("Loading data...")
@@ -76,6 +77,19 @@ def load_model(folder_path):
       checkpoint = torch.load(latest_checkpoint_path, map_location = torch.device('cpu'))
     
     model.load_state_dict(checkpoint['state_dict'])
+
+    logging.info("Saving the model...")
+    if not os.path.exists(MODEL_PATH):
+        os.makedirs(MODEL_PATH)
+    
+    if not model_path:
+        model_path = INF_MODEL_PATH
+    else:
+        model_path = os.path.join(RESULTS_DIR, model_path)
+    
+    with open(model_path, 'wb') as f:
+        pickle.dump(model, f)
+        logging.info("Final model for use saved successfully. You can het it in results folder.")
     return model
 
 def get_preds(model, dataloader):
