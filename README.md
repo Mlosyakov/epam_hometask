@@ -36,6 +36,9 @@ epam_hometask
 │   ├── Dockerfile
 │   ├── train.py
 │   └── __init__.py
+├── results                    # Folder where final model and results are stored
+│   ├── Outputs.csv
+│   └── model files
 ├── utils.py                  # Utility functions and classes that are used in scripts
 ├── requirements.txt          # All requirements for the project
 ├── settings.json             # All configurable parameters and settings
