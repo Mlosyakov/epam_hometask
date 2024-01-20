@@ -43,16 +43,16 @@ class DataGetting():
         url = 'https://en.wikipedia.org/wiki/Iris_flower_data_set'
         response = requests.get(url)
         if response.status_code == 200:
-          soup = BeautifulSoup(response.content, 'html.parser')
-          table = soup.find('table', {'class':'wikitable'})
-          data = []
-          for row in table.find_all('tr')[1:]:
-            columns = row.find_all(['th', 'td'])
-            data.append([column.get_text(strip = True) for column in columns])
-          df = pd.DataFrame(data, columns = ["id","Sepal length", "Sepal width", "Petal length", "Petal width", "Species"])
-          df.set_index('id', inplace=True)
+            soup = BeautifulSoup(response.content, 'html.parser')
+            table = soup.find('table', {'class':'wikitable'})
+            data = []
+            for row in table.find_all('tr')[1:]:
+                columns = row.find_all(['th', 'td'])
+                data.append([column.get_text(strip = True) for column in columns])
+            df = pd.DataFrame(data, columns = ["id","Sepal length", "Sepal width", "Petal length", "Petal width", "Species"])
+            df.set_index('id', inplace=True)
         else:
-          print(f"Failed to get data from page. Status code: {response.status_code}")
+            print(f"Failed to get data from page. Status code: {response.status_code}")
         raw_file_path = os.path.join(DATA_DIR, 'raw_data.csv')
         logger.info("Hiding in discrete place...")
         df.to_csv(raw_file_path, index = False, encoding="utf-16")
