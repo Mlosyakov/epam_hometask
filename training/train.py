@@ -1,4 +1,3 @@
-
 import hashlib
 import json
 import logging
@@ -39,8 +38,10 @@ with open(CONF_FILE, "r") as file:
 
 logger.info("Defining paths...")
 DATA_DIR = get_project_dir(configur["general"]["data_dir"])
+MODEL_DIR = os.path.join(DATA_DIR, configur["general"]["models_dir"])
+
 TRAIN_PATH = os.path.join(DATA_DIR, configur["train"]["table_name"])
-MODEL_PATH = os.path.join(DATA_DIR, configur["general"]["models_dir"])
+MODEL_PATH = os.path.join(MODEL_DIR, configur["inference"]["model_name"])
 
 RANDOM_STATE = configur["general"]["random_state"]
 DATETIME_FORMAT = configur["general"]["datetime_format"]
@@ -62,9 +63,10 @@ class TrainProcessor():
         logging.info("Loading data...")
         df = pd.read_csv(train_path, encoding="utf-16")
         df = self.encode_target(df)
-        X_train, X_test, y_train, y_test, input_size = self.split_train(df)
+        X_train, X_test, y_train, y_test, input_size, output_size = self.split_train(df)
         X_train_tens, y_train_tens, X_val_tens, y_val_tens = self.convert_to_tensors(X_train, X_test, y_train, y_test)
         train_loader, val_loader = self.prepare_dataloader(X_train_tens, y_train_tens, X_val_tens, y_val_tens, BATCH_SIZE)
+        output_size = len(X_train)
         return train_loader, val_loader, input_size, output_size
 
     def encode_target(self, df):
@@ -74,12 +76,13 @@ class TrainProcessor():
         mapping = dict(zip(df[TARGET_COL].unique(), labels))
         inv_map = {v: k for k, v in mapping.items()}
         logging.info("Saving decoder...")
-        if not os.path.exists(MODEL_PATH):
-            os.makedirs(MODEL_PATH)
-        dict_path = os.path.join(MODEL_PATH, DICT_NAME)
+        
+        if not os.path.exists(MODEL_DIR):
+            os.makedirs(MODEL_DIR)
+        dict_path = os.path.join(MODEL_DIR, DICT_NAME)
         np.save(dict_path, inv_map)
+        
         df[TARGET_COL] = pd.Series(df[TARGET_COL]).map(mapping)
-        logging.info(f"Data is prepared with {len(df)} samples. {len(X_train} of them used for training and rest for validation")
         return df
 
     def split_train(self, data : pd.DataFrame, test_size: float = TEST_SIZE, target_col = 'Species'):
@@ -90,6 +93,7 @@ class TrainProcessor():
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = test_size, stratify = y, random_state = RANDOM_STATE)
         input_size = X_train.shape[1]
         output_size = len(np.unique(y))
+        logging.info(f"Data is prepared with {len(data)} samples. {len(X_train)} of them used for training and rest for validation")
         return X_train, X_test, y_train, y_test, input_size, output_size
 
     def convert_to_tensors(self, X_train, X_test, y_train, y_test):
@@ -102,8 +106,8 @@ class TrainProcessor():
     def prepare_dataloader(self, X_train_tens, y_train_tens, X_val_tens, y_val_tens, batch_size):
         train_dataset = TensorDataset(X_train_tens, y_train_tens)
         val_dataset = TensorDataset(X_val_tens, y_val_tens)
-        train_loader = DataLoader(dataset = train_dataset, batch_size = batch_size, shuffle=True, num_workers=1)
-        val_loader = DataLoader(dataset = val_dataset, batch_size = batch_size, num_workers=1)
+        train_loader = DataLoader(dataset = train_dataset, batch_size = batch_size, shuffle=True, num_workers=3, persistent_workers= True)
+        val_loader = DataLoader(dataset = val_dataset, batch_size = batch_size, num_workers=3, persistent_workers= True)
         logging.info("Preparation successful.")
         return train_loader, val_loader
 
@@ -160,7 +164,7 @@ def train_iris_model(train_loader, val_loader, input_size, output_size, hidden_s
   
     checkpoint_callback = ModelCheckpoint(
         monitor = 'val_loss',
-        dirpath = MODEL_PATH,
+        dirpath = MODEL_DIR,
         filename = 'best_model',
         save_top_k = 1,
         mode = 'min'
@@ -168,7 +172,8 @@ def train_iris_model(train_loader, val_loader, input_size, output_size, hidden_s
   
     trainer = pl.Trainer(
         max_epochs = max_epochs,
-        callbacks = [early_stop_callback, checkpoint_callback]
+        callbacks = [early_stop_callback, checkpoint_callback],
+        log_every_n_steps = 4
     )
   
     trainer.fit(model, train_dataloaders = train_loader, val_dataloaders = val_loader)
@@ -176,17 +181,11 @@ def train_iris_model(train_loader, val_loader, input_size, output_size, hidden_s
     logging.info(f"Training finished in {end_time - start_time} seconds")
     
     logging.info("Saving the model...")
-    if not os.path.exists(MODEL_PATH):
-        os.makedirs(MODEL_PATH)
+    if not os.path.exists(MODEL_DIR):
+        os.makedirs(MODEL_DIR)
     
-    if not model_path:
-        model_path = os.path.join(MODEL_PATH, datetime.now().strftime(configur['general']['datetime_format']) + '.pickle')
-    else:
-        model_path = os.path.join(MODEL_PATH, model_path)
-    
-    with open(model_path, 'wb') as f:
-        pickle.dump(model, f)
-        logging.info("Model saved successfully.")
+    torch.save(model, MODEL_PATH)
+    logging.info("Model saved successfully.")
 
     return model
 
@@ -202,7 +201,7 @@ def get_preds_for_eval(model, dataloader):
       prediction_list.extend(predictions.detach().numpy())
       target_list.extend(targets.detach().numpy())
     res = f1_score(np.array(target_list) ,np.array(prediction_list), average = 'micro')
-    logging.info(f"Model achieved f1_score of {res:.2f}")
+    logging.info(f"Training Finished! Model achieved f1_score of {res:.2f}")
     return np.array(prediction_list), np.array(target_list)
 
 def main():

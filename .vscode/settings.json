@@ -17,7 +17,7 @@
 },
 "inference": {
     "inf_table_name": "inference_iris.csv",
-    "model_name": "IrisNN.pickle",
+    "model_name": "IrisNN.pth",
     "res_table_name" : "Output.csv"
 }
 }
