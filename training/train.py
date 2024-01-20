@@ -48,6 +48,8 @@ TARGET_COL = configur["general"]["target_col"]
 HIDDEN_SIZE = configur["train"]["hiiden_size"]
 MAX_EPOCHS = configur["train"]["max_epochs"]
 BATCH_SIZE = configur["train"]["batch_size"]
+if BATCH_SIZE > 32:
+    raise RuntimeError("Pick smaller batch size. To specify batch size go to settings.json")
 DICT_NAME = configur["general"]["dict_name"]
 TEST_SIZE = configur["train"]["test_size"]
 
@@ -63,7 +65,7 @@ class TrainProcessor():
         X_train, X_test, y_train, y_test, input_size = self.split_train(df)
         X_train_tens, y_train_tens, X_val_tens, y_val_tens = self.convert_to_tensors(X_train, X_test, y_train, y_test)
         train_loader, val_loader = self.prepare_dataloader(X_train_tens, y_train_tens, X_val_tens, y_val_tens, BATCH_SIZE)
-        return train_loader, val_loader, input_size
+        return train_loader, val_loader, input_size, output_size
 
     def encode_target(self, df):
         logging.info("Preparing data...")
@@ -86,7 +88,8 @@ class TrainProcessor():
         y = (data[target_col]).values
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = test_size, stratify = y, random_state = RANDOM_STATE)
         input_size = X_train.shape[1]
-        return X_train, X_test, y_train, y_test, input_size
+        output_size = len(np.unique(y))
+        return X_train, X_test, y_train, y_test, input_size, output_size
 
     def convert_to_tensors(self, X_train, X_test, y_train, y_test):
         train_tensors = (torch.tensor(X_train, dtype = torch.float32),
@@ -105,13 +108,13 @@ class TrainProcessor():
 
 
 class IrisNN(pl.LightningModule):
-    def __init__(self, input_size, hidden_size):
+    def __init__(self, input_size, output_size, hidden_size):
         super(IrisNN, self).__init__()
         self.fc1 = nn.Linear(input_size, hidden_size)
-        self.fc2 = nn.Linear(hidden_size, 3)
+        self.fc2 = nn.Linear(hidden_size, output_size)
         self.criterion = nn.CrossEntropyLoss()
-        self.train_metrics = torchmetrics.F1Score(task='multiclass', num_classes = 3)
-        self.val_metrics = torchmetrics.F1Score(task='multiclass', num_classes = 3)
+        self.train_metrics = torchmetrics.F1Score(task='multiclass', num_classes = output_size)
+        self.val_metrics = torchmetrics.F1Score(task='multiclass', num_classes = output_size)
     def forward(self, x):
         x = self.fc1(x)
         x = F.relu(x)
@@ -142,10 +145,10 @@ class IrisNN(pl.LightningModule):
         optimizer = optim.SGD(self.parameters(), lr = 0.01)
         return optimizer
 
-def train_iris_model(train_loader, val_loader, input_size, hidden_size, max_epochs, model_path = None):
+def train_iris_model(train_loader, val_loader, input_size, output_size, hidden_size, max_epochs, model_path = None):
     logging.info("Starting training...")
     start_time = time.time()
-    model = IrisNN(input_size = input_size, hidden_size = hidden_size)
+    model = IrisNN(input_size = input_size, output_size = output_size, hidden_size = hidden_size)
 
     early_stop_callback = EarlyStopping(
         monitor = 'val_loss',
@@ -203,11 +206,12 @@ def get_preds_for_eval(model, dataloader):
 
 def main():
     tr = TrainProcessor()
-    train_loader, val_loader, input_size = tr.prepare_data(train_path = TRAIN_PATH)
+    train_loader, val_loader, input_size, output_size = tr.prepare_data(train_path = TRAIN_PATH)
     model = train_iris_model(
         train_loader = train_loader, 
         val_loader = val_loader, 
-        input_size = input_size, 
+        input_size = input_size,
+        output_size = output_size,
         hidden_size = HIDDEN_SIZE,
         max_epochs = MAX_EPOCHS, 
                     )
