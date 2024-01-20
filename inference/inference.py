@@ -34,21 +34,28 @@ logger.info("Defining paths...")
 MODEL_PATH = os.path.join(DATA_DIR, configur["general"]["models_dir"])
 if not os.path.exists(MODEL_PATH):
     raise RuntimeError("No models found. Please run train.py first")
+RESULTS_DIR = os.path.join(DATA_DIR, configur["general"]["results_dir"])
+if not os.path.exists(RESULTS_DIR):
+    os.makedirs(RESULTS_DIR)
 
 DATA_DIR = get_project_dir(configur["general"]["data_dir"])
 INFERENCE_PATH = os.path.join(DATA_DIR, configur["inference"]["inf_table_name"])
 TARGET_COL = configur["general"]["target_col"]
 DICT_NAME = configur["train"]["dict_name"]
 DICT_LOC = os.path.join(MODEL_PATH, DICT_NAME)
+RESULTS_PATH = os.path.join(RESULTS_DIR, configur["inference"]["inf_table_name"])
 
 def preprocess_inf(path):
+    logging.info("Loading data...")
     df = pd.read_csv(path)
     X = df.drop(columns = TARGET_COL).values
     X = torch.tensor(X, dtype = torch.float32)
     X = DataLoader(dataset = X, batch_size = len(X), num_workers=1)
+    logging.info("Loaded {len(X} samples for inference.")
     return X
 
 def load_model(folder_path):
+     logging.info("Loading trained model...")
     model_files = list(Path(folder_path).rglob('*.pth'))
     checkpoint_files = list(Path(folder_path).rglob('*ckpt'))
   
@@ -67,21 +74,23 @@ def load_model(folder_path):
       raise NotImplementedError('Please use only local models')
     else:
       checkpoint = torch.load(latest_checkpoint_path, map_location = torch.device('cpu'))
-  
+    
     model.load_state_dict(checkpoint['state_dict'])
     return model
 
 def get_preds(model, dataloader):
+    logging.info("Inference in progress...")
     model.eval()
     prediction_list = []
     for batch in dataloader:
-      inputs = batch
-      outputs = model(inputs)
-      _, predictions = torch.max(F.softmax(outputs, dim = 1), 1)
-      prediction_list.extend(predictions.detach().numpy())
+        inputs = batch
+        outputs = model(inputs)
+        _, predictions = torch.max(F.softmax(outputs, dim = 1), 1)
+        prediction_list.extend(predictions.detach().numpy())
     label_decode = np.load(DICT_LOC, allow_pickle='TRUE').item()
     results = np.vectorize(label_decode.get)(prediction_list)
-    
+    np.save(RESULTS_PATH, results)
+    logging.info("Output is stored in .csv file in results folder. Have a great day!")
 
 def main():
     model = load_model(MODEL_PATH)
