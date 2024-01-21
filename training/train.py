@@ -31,14 +31,14 @@ DATA_DIR = os.path.abspath(os.path.join(ROOT_DIR, '../data'))
 if not os.path.exists(DATA_DIR):
     raise RuntimeError("No data found. Please run data_prep.py first")
 
-CONF_FILE = ".vscode/settings.json"
+CONF_FILE = "settings.json"
 logger.info("Getting few important dependencies...")
 with open(CONF_FILE, "r") as file:
     configur = json.load(file)
 
 logger.info("Defining paths...")
 DATA_DIR = get_project_dir(configur["general"]["data_dir"])
-MODEL_DIR = os.path.join(DATA_DIR, configur["general"]["models_dir"])
+MODEL_DIR = get_project_dir(configur["general"]["models_dir"])
 
 TRAIN_PATH = os.path.join(DATA_DIR, configur["train"]["table_name"])
 MODEL_PATH = os.path.join(MODEL_DIR, configur["inference"]["model_name"])
@@ -183,7 +183,7 @@ def train_iris_model(train_loader, val_loader, input_size, output_size, hidden_s
   
     trainer.fit(model, train_dataloaders = train_loader, val_dataloaders = val_loader)
     end_time = time.time()
-    logging.info(f"Training finished in {end_time - start_time} seconds")
+    logging.info(f"Training finished in {(end_time - start_time):.2f} seconds")
     
     logging.info("Saving the model...")
     if not os.path.exists(MODEL_DIR):

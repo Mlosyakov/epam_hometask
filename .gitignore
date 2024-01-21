@@ -1,0 +1,8 @@
+# Ignore Python cache files
+__pycache__/
+
+# Ignore PyTorch Lightning logs
+lightning_logs/
+
+# Ignore macOS system files
+.DS_Store

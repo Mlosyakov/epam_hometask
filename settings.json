@@ -1,0 +1,23 @@
+{    "general": {
+    "random_state": 42,
+    "status": "test",
+    "datetime_format": "%d.%m.%Y_%H.%M",
+    "data_dir": "data",
+    "models_dir": "models",
+    "results_dir": "output",
+    "dict_name" : "label_decoder",
+    "target_col" : "Species"
+},
+"train": {
+    "table_name": "train_iris.csv",
+    "hiiden_size" : 64,
+    "max_epochs" : 25,
+    "batch_size" : 8,
+    "test_size": 0.2
+},
+"inference": {
+    "inf_table_name": "inference_iris.csv",
+    "model_name": "IrisNN.pth",
+    "res_table_name" : "Output.csv"
+}
+}

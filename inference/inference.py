@@ -28,13 +28,13 @@ DATA_DIR = os.path.abspath(os.path.join(ROOT_DIR, '../data'))
 if not os.path.exists(DATA_DIR):
     raise RuntimeError("No data found. Please run data_prep.py first")
 
-CONF_FILE = ".vscode/settings.json"
+CONF_FILE = "settings.json"
 logger.info("Getting few important dependencies...")
 with open(CONF_FILE, "r") as file:
     configur = json.load(file)
 
 logger.info("Defining paths...")
-MODEL_DIR = os.path.join(DATA_DIR, configur["general"]["models_dir"])
+MODEL_DIR = get_project_dir(configur["general"]["models_dir"])
 #if not os.path.exists(MODEL_DIR):
     #raise RuntimeError("No model directory found. Please run train.py first.")
 
@@ -104,17 +104,11 @@ def load_model(folder_path = None):
     model_files = list(Path(folder_path).rglob('*.pth'))
     checkpoint_files = list(Path(folder_path).rglob('*ckpt'))
     
-    print(model_files)
-    print(checkpoint_files)
-    
     if not model_files or not checkpoint_files:
         raise FileNotFoundError('No models or checkpoints found. Train model first')
   
     latest_model_path = max(model_files, key = os.path.getctime)
     latest_checkpoint_path = max(checkpoint_files, key = os.path.getctime)
-    
-    print(latest_model_path)
-    print(latest_checkpoint_path)
     
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     
@@ -156,14 +150,13 @@ def get_preds(model, dataloader):
     label_decode = np.load(DICT_PATH, allow_pickle='TRUE').item()
     results = np.vectorize(label_decode.get)(prediction_list)
     pd.Series(results).to_csv(RESULTS_PATH, index = False, encoding="utf-16")
-    logging.info(f"Model finished predicting in {end_time - start_time} seconds. Output is stored in .csv file in results folder. Have a great day!")
+    logging.info(f"Model finished predicting in {(end_time - start_time):.2f} seconds. Output is stored in .csv file in results folder. Have a great day!")
 
 def main():
     model = load_model(MODEL_DIR)
     data = preprocess_inf(INFERENCE_PATH)
     get_preds(model, data)
     
-
 if __name__ == '__main__':
     main()
 

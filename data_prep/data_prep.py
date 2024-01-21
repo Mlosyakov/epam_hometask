@@ -20,7 +20,7 @@ DATA_DIR = os.path.abspath(os.path.join(ROOT_DIR, '../data'))
 if not os.path.exists(DATA_DIR):
     os.makedirs(DATA_DIR)
 
-CONF_FILE = ".vscode/settings.json"
+CONF_FILE = "settings.json"
 logger.info("Getting few important dependencies...")
 with open(CONF_FILE, "r") as file:
     configur = json.load(file)
