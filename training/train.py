@@ -43,17 +43,16 @@ MODEL_DIR = os.path.join(DATA_DIR, configur["general"]["models_dir"])
 TRAIN_PATH = os.path.join(DATA_DIR, configur["train"]["table_name"])
 MODEL_PATH = os.path.join(MODEL_DIR, configur["inference"]["model_name"])
 
-RANDOM_STATE = configur["general"]["random_state"]
 DATETIME_FORMAT = configur["general"]["datetime_format"]
-TARGET_COL = configur["general"]["target_col"]
 HIDDEN_SIZE = configur["train"]["hiiden_size"]
 MAX_EPOCHS = configur["train"]["max_epochs"]
+RANDOM_STATE = configur["general"]["random_state"]
+TARGET_COL = configur["general"]["target_col"]
+DICT_NAME = configur["general"]["dict_name"]
+TEST_SIZE = configur["train"]["test_size"]
 BATCH_SIZE = configur["train"]["batch_size"]
 if BATCH_SIZE > 32:
     raise RuntimeError("Pick smaller batch size. To specify batch size go to settings.json")
-DICT_NAME = configur["general"]["dict_name"]
-TEST_SIZE = configur["train"]["test_size"]
-
 
 class TrainProcessor():
     def __init__(self):
@@ -66,7 +65,6 @@ class TrainProcessor():
         X_train, X_test, y_train, y_test, input_size, output_size = self.split_train(df)
         X_train_tens, y_train_tens, X_val_tens, y_val_tens = self.convert_to_tensors(X_train, X_test, y_train, y_test)
         train_loader, val_loader = self.prepare_dataloader(X_train_tens, y_train_tens, X_val_tens, y_val_tens, BATCH_SIZE)
-        output_size = len(X_train)
         return train_loader, val_loader, input_size, output_size
 
     def encode_target(self, df):
@@ -120,6 +118,7 @@ class IrisNN(pl.LightningModule):
         self.criterion = nn.CrossEntropyLoss()
         self.train_metrics = torchmetrics.F1Score(task='multiclass', num_classes = output_size)
         self.val_metrics = torchmetrics.F1Score(task='multiclass', num_classes = output_size)
+    
     def forward(self, x):
         x = self.fc1(x)
         x = F.relu(x)
@@ -130,7 +129,6 @@ class IrisNN(pl.LightningModule):
        inputs, target = batch
        outputs = self(inputs)
        loss = self.criterion(outputs, target)
-
        f1 = self.train_metrics(outputs, target)
        self.log('train_loss', loss, on_step = True, on_epoch = True, prog_bar = True, logger = True)
        self.log('train_f1_score', f1, on_step = True, on_epoch = True, prog_bar = True, logger = True)
@@ -140,7 +138,6 @@ class IrisNN(pl.LightningModule):
         inputs, target = batch
         outputs = self(inputs)
         loss = self.criterion(outputs, target)
-
         f1 = self.train_metrics(outputs, target)
         self.log('val_loss', loss, on_step = True, on_epoch = True, prog_bar = True, logger = True)
         self.log('val_f1_score', f1, on_step = True, on_epoch = True, prog_bar = True, logger = True)
@@ -214,7 +211,7 @@ def main():
         output_size = output_size,
         hidden_size = HIDDEN_SIZE,
         max_epochs = MAX_EPOCHS, 
-                    )
+    )
     get_preds_for_eval(model, val_loader)
 if __name__ == '__main__':
     main()
