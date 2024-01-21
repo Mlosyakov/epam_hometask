@@ -44,17 +44,26 @@ TRAIN_PATH = os.path.join(DATA_DIR, configur["train"]["table_name"])
 MODEL_PATH = os.path.join(MODEL_DIR, configur["inference"]["model_name"])
 
 DATETIME_FORMAT = configur["general"]["datetime_format"]
-HIDDEN_SIZE = configur["train"]["hiiden_size"]
-MAX_EPOCHS = configur["train"]["max_epochs"]
 RANDOM_STATE = configur["general"]["random_state"]
 TARGET_COL = configur["general"]["target_col"]
 DICT_NAME = configur["general"]["dict_name"]
+HIDDEN_SIZE = configur["train"]["hiiden_size"]
+MAX_EPOCHS = configur["train"]["max_epochs"]
 TEST_SIZE = configur["train"]["test_size"]
 BATCH_SIZE = configur["train"]["batch_size"]
 if BATCH_SIZE > 32:
     raise RuntimeError("Pick smaller batch size. To specify batch size go to settings.json")
 
 class TrainProcessor():
+    """
+    This class prepares training part of Iris dataset.
+    Function encode_target saves decoder into models directory to provide object output like in initial datasey
+    instead of returning labels of classes. 
+    Methods do not save training and validation datasets.
+    Class is intended to be used as a whole, calls for specific methods were not tested.
+    This class also defines input and output size of layers used in model.
+    """
+    
     def __init__(self):
         pass
 
@@ -72,14 +81,13 @@ class TrainProcessor():
         labels = list(range(len(df[TARGET_COL].unique())))
         #label encoding target column
         mapping = dict(zip(df[TARGET_COL].unique(), labels))
-        inv_map = {v: k for k, v in mapping.items()}
-        logging.info("Saving decoder...")
+        inv_map = {v: k for k, v in mapping.items()} #decoder for later use in output 
         
+        logging.info("Saving decoder...")
         if not os.path.exists(MODEL_DIR):
             os.makedirs(MODEL_DIR)
         dict_path = os.path.join(MODEL_DIR, DICT_NAME)
         np.save(dict_path, inv_map)
-        
         df[TARGET_COL] = pd.Series(df[TARGET_COL]).map(mapping)
         return df
 
