@@ -35,8 +35,8 @@ with open(CONF_FILE, "r") as file:
 
 logger.info("Defining paths...")
 MODEL_DIR = os.path.join(DATA_DIR, configur["general"]["models_dir"])
-#if not os.path.exists(MODEL_PATH):
-    #raise RuntimeError("No models found. Please run train.py first")
+#if not os.path.exists(MODEL_DIR):
+    #raise RuntimeError("No model directory found. Please run train.py first.")
 
 RESULTS_DIR = os.path.abspath(os.path.join(ROOT_DIR, '../results'))
 if not os.path.exists(RESULTS_DIR):
