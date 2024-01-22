@@ -3,20 +3,6 @@ This is a project for Basics MLE module of a course. All .py scripts were tested
 Project does not require additional setup and can be run as is when cloned. <br />
 Upon completion of intermediate steps script returns small and (sometimes) informative log.<br />
 As a result you will recieve <code>.csv</code> file with predictions and <code>.pth</code> model file of the latest trained model.<br />
-## Current state of project
-
-- [x] Requirements file contains all neccessary information
-- [x] Settings file contains all changable variables
-- [x] data_prep.py is ready
-- [x] data_prep.py works
-- [x] train.py is ready
-- [x] train.py works
-- [ ] docker image for train is built
-- [x] exeptions and test for train.py are ready and working (tests for batch size, directories, files)
-- [x] inference.py is ready
-- [x] inference.py works
-- [ ] docker image for inference is built
-- [x] exeptions and test for inference.py are ready and working (tests for batch size, directories, files)
 
 ## Project Structure
 
