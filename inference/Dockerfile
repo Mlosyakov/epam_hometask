@@ -10,10 +10,8 @@ WORKDIR /app
 
 # Copy data folder to Docker
 COPY data/ /app/data
-# Copy models to Docker
-COPY models/${model_name} /app/models/${model_name}
-COPY models/${model_chkpt} /app/models/${model_chkpt}
-COPY models/${decoder_name} /app/models/${decoder_name}
+# Copy models folder to Docker
+COPY models/ /app/models
 # Copy the code itself
 COPY inference /app/inference
 
