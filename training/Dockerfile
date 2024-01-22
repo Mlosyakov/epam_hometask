@@ -18,6 +18,7 @@ COPY ${CONF_PATH} /app
 
 # Install any necessary packages listed in requirements.txt
 COPY ../requirements.txt ./
+RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Train the model
