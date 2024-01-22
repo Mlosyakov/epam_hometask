@@ -165,7 +165,7 @@ def train_iris_model(train_loader, val_loader, input_size, output_size, hidden_s
 
     early_stop_callback = EarlyStopping(
         monitor = 'val_loss',
-        patience = 3,
+        patience = 5,
         verbose = True,
         mode = 'min'
     )
