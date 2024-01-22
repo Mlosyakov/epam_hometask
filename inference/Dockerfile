@@ -2,6 +2,7 @@ FROM python:3.10
 
 ARG settings_name=settings.json
 ARG model_name=IrisNN.pth
+ARG model_chkpt=best_model.ckpt
 ARG decoder_name=label_decoder.npy
 ENV CONF_PATH=${settings_name}
 
@@ -11,6 +12,7 @@ WORKDIR /app
 COPY data/ /app/data
 # Copy models to Docker
 COPY models/${model_name} /app/models/${model_name}
+COPY models/${model_chkpt} /app/models/${model_chkpt}
 COPY models/${decoder_name} /app/models/${decoder_name}
 # Copy the code itself
 COPY inference /app/inference
