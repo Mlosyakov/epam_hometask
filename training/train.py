@@ -31,6 +31,9 @@ DATA_DIR = os.path.abspath(os.path.join(ROOT_DIR, '../data'))
 if not os.path.exists(DATA_DIR):
     raise RuntimeError("No data found. Please run data_prep.py first")
 
+if not os.listdir(DATA_DIR):
+    raise RuntimeError(f"The directory {DATA_DIR} is empty. Please populate it with data first.")
+
 CONF_FILE = "settings.json"
 logger.info("Getting few important dependencies...")
 with open(CONF_FILE, "r") as file:

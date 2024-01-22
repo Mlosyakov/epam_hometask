@@ -12,11 +12,11 @@ As a result you will recieve <code>.csv</code> file with predictions and <code>.
 - [x] train.py is ready
 - [x] train.py works
 - [ ] docker image for train is built
-- [ ] exeptions and test for train.py are ready and working (tests for batch size, directories, files)
+- [x] exeptions and test for train.py are ready and working (tests for batch size, directories, files)
 - [x] inference.py is ready
 - [x] inference.py works
 - [ ] docker image for inference is built
-- [ ] exeptions and test for inference.py are ready and working (tests for batch size, directories, files)
+- [x] exeptions and test for inference.py are ready and working (tests for batch size, directories, files)
 
 ## Project Structure
 
