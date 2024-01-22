@@ -1,17 +1,17 @@
 # Ignore Python cache files
-__pycache__/
+**/__pycache__/
 
 # Ignore vscode files
-.vscode/
+**/.vscode/
 
 # Ignore models
-/models
+**/models/
 
 # Ignore results
-/results
+**/results/
 
 # Ignore PyTorch Lightning logs
-lightning_logs
+**/lightning_logs/
 
 # Ignore macOS system files
-.DS_Store
+**/.DS_Store
