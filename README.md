@@ -1,12 +1,8 @@
-run
-docker build -t train_img -f training/Dockerfile .
-
-docker run -it train_img /bin/bash 
-
-
-
 # Basics MLE Module Homework
-This is a project for Basics MLE module of a course. All .py scripts were tested on MacOS, if there are any performance issues on different OS please let me know.
+This is a project for Basics MLE module of a course. All .py scripts were tested on MacOS, if there are any performance issues on different OS please let me know. <br />
+Project does not require additional setup and can be run as is when cloned. <br />
+Upon completion of intermediate steps script returns small and (sometimes) informative log.<br />
+As a result you will recieve <code>.csv</code> file with predictions and <code>.pth</code> model file of the latest trained model.<br />
 ## Current state of project
 
 - [x] Requirements file contains all neccessary information
@@ -52,6 +48,30 @@ epam_hometask
 └── README.md
 ~~~
 ## How to run
+### Training
+To run training you should first creare image for training.py
+To create image run:
+~~~
+docker build -t train_img -f training/Dockerfile .
+~~~
+And then run this command to execute training
+~~~
+docker run -it train_img /bin/bash 
+~~~
+Doing the following will create docker image with copied data for training and output trained model.
+### Inference
+To run inference you should first creare image for inference.py
+To create image run:
+~~~
+docker build -t inference_img -f inference/Dockerfile .
+~~~
+And then run this command to execute inference
+~~~
+docker run -it inference_img /bin/bash 
+~~~
+Doing the following will create docker image with copied data for training and output trained model.
+
+Alternatively you can simply run python scripts to ensure that everything works as intended. 
 These scripts should be run in order, demonstrated below to successfully build the model and not return any errors:
 
 1. Run data_prep
@@ -67,9 +87,9 @@ Succsessful run of inference is indicated by creating <code>results</code> direc
 ### Data prep
 Running <code>data_prep.py</code> script performs the following:  
 1. Downloads data from the webpage;
-2. Saves full dataset into <code>data</code> directory as a .csv file. If <code>data</code> directory does not exist, directory is created;
+2. Saves full dataset into <code>data</code> directory as a <code>.csv</code> file. If <code>data</code> directory does not exist, directory is created;
 3. Splits dataset into training and inference parts according to <code>test_size</code> parameter in settings.json;
-4. Saves training and inference dataset into <code>data</code> directory as a .csv files with names specified in settings.json;
+4. Saves training and inference dataset into <code>data</code> directory as a <code>.csv</code> files with names specified in <code>settings.json</code>;
 
 ### Training
 Running <code>train.py</code> script performs the following:  
@@ -88,4 +108,4 @@ Running <code>train.py</code> script performs the following:
 Running <code>inference.py</code> script performs the following:  
 1. Inference file from <code>data</code> directory is preprocessed for predictions;
 2. Model and checkpoint with best performance are loaded from <code>model</code> directory;
-3. Inference data is passed into a model and outputs are saved in <code>results</code> directory as a .csv file;
+3. Inference data is passed into a model and outputs are saved in <code>results</code> directory as a <code>.csv</code> file;
