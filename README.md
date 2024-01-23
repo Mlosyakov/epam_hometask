@@ -56,6 +56,7 @@ And then run this command to execute inference
 docker run -it inference_img /bin/bash 
 ~~~
 Doing the following will create docker image with copied data for training and output trained model.
+Script will also run automatically with creation of a docker container.
 
 Alternatively you can simply run python scripts to ensure that everything works as intended. 
 These scripts should be run in order, demonstrated below to successfully build the model and not return any errors:
