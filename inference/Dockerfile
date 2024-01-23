@@ -1,9 +1,6 @@
 FROM python:3.10
 
 ARG settings_name=settings.json
-ARG model_name=IrisNN.pth
-ARG model_chkpt=best_model.ckpt
-ARG decoder_name=label_decoder.npy
 ENV CONF_PATH=${settings_name}
 
 WORKDIR /app
